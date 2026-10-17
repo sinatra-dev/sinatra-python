@@ -17,11 +17,13 @@ class MeUser:
         id (str): The user's id.
         github_login (None | str): The user's GitHub login. `null` for a user without GitHub.
         name (None | str): The user's name, if they have one.
+        email (str): The user's email address: the one they sign in with by email, or their primary GitHub email.
     """
 
     id: str
     github_login: None | str
     name: None | str
+    email: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,6 +35,8 @@ class MeUser:
         name: None | str
         name = self.name
 
+        email = self.email
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -40,6 +44,7 @@ class MeUser:
                 "id": id,
                 "githubLogin": github_login,
                 "name": name,
+                "email": email,
             }
         )
 
@@ -64,10 +69,13 @@ class MeUser:
 
         name = _parse_name(d.pop("name"))
 
+        email = d.pop("email")
+
         me_user = cls(
             id=id,
             github_login=github_login,
             name=name,
+            email=email,
         )
 
         me_user.additional_properties = d
