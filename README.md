@@ -148,6 +148,7 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
 uv run pytest                     # wrapper tests against a local stub server
 bash scripts/contract.sh          # every operation against a Prism mock of openapi.json
 PATH="$PWD/.tools/bin:$PATH" bash scripts/next-version.test.sh
+bash scripts/build.sh             # sdist and wheel in dist/, build backend pinned by hash
 ```
 
 `src/sinatra_dev/_generated` is written by `openapi-python-client` and never edited by hand; CI fails if it differs from what `openapi.json` generates (`bash scripts/check-generated.sh`). `openapi.json` is updated by the release workflow. See [RELEASING.md](RELEASING.md).
