@@ -9,6 +9,7 @@ from typing import Any
 
 import httpx
 import pytest
+from spec_objects import spec_object
 from stub_server import FakeClock, Reply, Stub
 
 from sinatra_dev import Sinatra, SinatraError
@@ -16,34 +17,19 @@ from sinatra_dev._generated.api.tasks import tasks_get
 
 WS = "ws_1"
 UUID_V4 = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
-ME = {"user": {"id": "user_1", "githubLogin": "octo", "name": "Octo"}, "workspaces": []}
+# Stub bodies are minimal valid objects from openapi.json (spec_objects.py),
+# overriding only the fields a test looks at, so a field the API newly
+# requires never breaks these tests.
+_ME = spec_object("Me")
+ME = {**_ME, "user": {**_ME["user"], "id": "user_1"}}
 
 
 def task(**overrides: Any) -> dict[str, Any]:
-    return {
-        "id": "task_1",
-        "status": "implementing",
-        "source": "api",
-        "title": "Fix the flaky test",
-        "repo": "acme/web",
-        "pullRequest": None,
-        "queued": False,
-        "createdAt": "2026-10-16T12:00:00.000Z",
-        "lastActivityAt": None,
-        "url": "https://app.sinatra.dev/tasks/task_1",
-        **overrides,
-    }
+    return spec_object("Task", **{"id": "task_1", **overrides})
 
 
 def message(id: str) -> dict[str, Any]:
-    return {
-        "id": id,
-        "messageId": None,
-        "role": "agent",
-        "kind": "response",
-        "body": f"entry {id}",
-        "createdAt": "2026-10-16T12:00:00.000Z",
-    }
+    return spec_object("Message", id=id)
 
 
 @pytest.fixture
@@ -56,7 +42,7 @@ class TestRetries:
     def test_retries_reuse_the_idempotency_key(self, stub: Stub, sinatra: Sinatra) -> None:
         stub.reply(
             Reply(503, {"error": "unavailable", "taskId": "task_1", "messageId": "m"}),
-            Reply(202, {"task": task(), "messageId": "m"}),
+            Reply(202, spec_object("CreateTaskResponse", task=task())),
         )
 
         created = sinatra.tasks.create(WS, "Fix the flaky test")
@@ -68,14 +54,16 @@ class TestRetries:
         assert keys[1] == keys[0]
 
     def test_a_key_you_pass_is_sent_on_every_attempt(self, stub: Stub, sinatra: Sinatra) -> None:
-        stub.reply(Reply(503, {"error": "unavailable"}), Reply(202, {"messageId": "mine-1"}))
+        stub.reply(
+            Reply(503, {"error": "unavailable"}), Reply(202, spec_object("CreateMessageResponse", messageId="mine-1"))
+        )
 
         sinatra.messages.create(WS, "task_1", "and the docs", idempotency_key="mine-1")
 
         assert [r.headers.get("idempotency-key") for r in stub.requests] == ["mine-1", "mine-1"]
 
     def test_each_call_gets_its_own_key(self, stub: Stub, sinatra: Sinatra) -> None:
-        stub.reply(Reply(202, {"messageId": "a"}), Reply(202, {"messageId": "b"}))
+        stub.reply(Reply(202, spec_object("CreateMessageResponse")), Reply(202, spec_object("CreateMessageResponse")))
 
         sinatra.messages.create(WS, "task_1", "one")
         sinatra.messages.create(WS, "task_1", "two")
@@ -122,7 +110,7 @@ class TestRetries:
         assert raised.value.status == 500
 
     def test_tasks_stop_retries_503_but_not_429(self, stub: Stub, sinatra: Sinatra) -> None:
-        stub.reply(Reply(503, {"error": "unavailable"}), Reply(202, {"accepted": True}))
+        stub.reply(Reply(503, {"error": "unavailable"}), Reply(202, spec_object("StopTaskResponse", accepted=True)))
 
         stopped = sinatra.tasks.stop(WS, "task_1")
 
@@ -182,7 +170,7 @@ class TestDecoding:
 
 class TestRequests:
     def test_bodyless_requests_send_no_content_type(self, stub: Stub, sinatra: Sinatra) -> None:
-        stub.reply(Reply(202, {"accepted": True}), Reply(204), Reply(200, task()))
+        stub.reply(Reply(202, spec_object("StopTaskResponse", accepted=True)), Reply(204), Reply(200, task()))
 
         sinatra.tasks.stop(WS, "task_1")
         sinatra.me.revoke_token()
@@ -198,7 +186,7 @@ class TestRequests:
             assert r.body == b""
 
     def test_requests_with_a_body_send_json(self, stub: Stub, sinatra: Sinatra) -> None:
-        stub.reply(Reply(202, {"task": task(), "messageId": "m"}))
+        stub.reply(Reply(202, spec_object("CreateTaskResponse", task=task())))
 
         sinatra.tasks.create(WS, "Fix it", repo="acme/web")
 
@@ -268,8 +256,8 @@ class TestTimeouts:
 class TestPagination:
     def test_list_iterator_follows_next_cursor(self, stub: Stub, sinatra: Sinatra) -> None:
         stub.reply(
-            Reply(200, {"tasks": [task(id="t1"), task(id="t2")], "nextCursor": "c2"}),
-            Reply(200, {"tasks": [task(id="t3")], "nextCursor": None}),
+            Reply(200, spec_object("TaskList", tasks=[task(id="t1"), task(id="t2")], nextCursor="c2")),
+            Reply(200, spec_object("TaskList", tasks=[task(id="t3")], nextCursor=None)),
         )
 
         ids = [t.id for t in sinatra.tasks.list_all(WS, status="pr_open", limit=2)]
@@ -284,8 +272,8 @@ class TestPagination:
 
     def test_message_iterator_follows_next_as_after(self, stub: Stub, sinatra: Sinatra) -> None:
         stub.reply(
-            Reply(200, {"messages": [message("e1")], "next": "e1"}),
-            Reply(200, {"messages": [message("e2")], "next": None}),
+            Reply(200, spec_object("MessageList", messages=[message("e1")], next="e1")),
+            Reply(200, spec_object("MessageList", messages=[message("e2")], next=None)),
         )
 
         ids = [m.id for m in sinatra.messages.list_all(WS, "task_1")]

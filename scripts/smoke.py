@@ -3,6 +3,7 @@ clean venv with only the built wheel): imports the package from site-packages
 and makes real requests to a local server."""
 
 import json
+import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -10,18 +11,12 @@ from pathlib import Path
 import sinatra_dev
 from sinatra_dev import Sinatra, SinatraError
 
-TASK = {
-    "id": "task_1",
-    "status": "teleporting",
-    "source": "api",
-    "title": None,
-    "repo": None,
-    "pullRequest": None,
-    "queued": False,
-    "createdAt": "2026-10-16T12:00:00.000Z",
-    "lastActivityAt": None,
-    "url": None,
-}
+# A minimal valid Task from openapi.json, so a field the API newly requires
+# can't break the smoke test (tests/unit/spec_objects.py: standard library only).
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests" / "unit"))
+from spec_objects import spec_object
+
+TASK = spec_object("Task", id="task_1", status="teleporting")
 
 
 class Handler(BaseHTTPRequestHandler):
