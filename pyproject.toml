@@ -1,6 +1,6 @@
 [project]
 name = "sinatra-dev"
-version = "0.0.0"
+version = "0.1.0"
 description = "Python client for the Sinatra API: start, follow and stop Sinatra tasks, and delegate Linear and GitHub issues."
 readme = "README.md"
 license = "MIT"
