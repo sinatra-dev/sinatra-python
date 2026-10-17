@@ -12,6 +12,7 @@ import pytest
 from stub_server import FakeClock, Reply, Stub
 
 from sinatra_dev import Sinatra, SinatraError
+from sinatra_dev._generated.api.tasks import tasks_get
 
 WS = "ws_1"
 UUID_V4 = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
@@ -210,6 +211,22 @@ class TestRequests:
         sinatra.tasks.get("ws/1", "../me")
 
         assert stub.requests[0].path == "/v1/workspaces/ws%2F1/tasks/..%2Fme"
+
+    def test_a_generated_request_with_parts_the_client_doesnt_send_is_refused(
+        self, stub: Stub, sinatra: Sinatra, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # A generator bump that starts building requests with, say, `files` or
+        # `content` must not have those silently dropped.
+        real = tasks_get._get_kwargs
+
+        def with_files(workspace_id: str, task_id: str) -> dict[str, Any]:
+            return {**real(workspace_id, task_id), "files": {"upload": b"x"}}
+
+        monkeypatch.setattr(tasks_get, "_get_kwargs", with_files)
+
+        with pytest.raises(RuntimeError, match="files"):
+            sinatra.tasks.get(WS, "task_1")
+        assert stub.requests == []
 
     def test_the_token_defaults_to_sinatra_token(self, stub: Stub, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("SINATRA_TOKEN", "sntr_from_env")

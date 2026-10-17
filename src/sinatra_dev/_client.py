@@ -51,6 +51,9 @@ Timeout = float | httpx.Timeout | None
 
 T = TypeVar("T")
 
+# Every key of a generated `_get_kwargs()` that `_Transport.send` passes on.
+_REQUEST_KEYS: Final = frozenset({"method", "url", "params", "json", "headers"})
+
 
 class _Default:
     """The type of :data:`DEFAULT`: "use the client's timeout"."""
@@ -160,6 +163,15 @@ class _Transport:
     def send(self, request: dict[str, Any], retry_on: frozenset[int], timeout: Timeout | _Default) -> httpx.Response:
         """Sends ``request`` (a generated ``_get_kwargs()``) and returns the 2xx
         response. Raises :class:`SinatraError` for any other status."""
+        unknown = set(request) - _REQUEST_KEYS
+        if unknown:
+            # A generator change built a request with parts this client doesn't
+            # send (a file upload, raw content, cookies...). Refuse rather than
+            # silently send something else.
+            raise RuntimeError(
+                f"sinatra-dev can't send {request.get('method', '?').upper()} {request.get('url', '?')}: "
+                f"the generated request has parts it doesn't handle: {', '.join(sorted(unknown))}"
+            )
         method: str = request["method"]
         url = self.base_url + request["url"]
         headers = {**request.get("headers", {}), **self.headers}
