@@ -1,0 +1,7 @@
+# Config for openapi-python-client (see scripts/generate.sh). The post-hooks
+# run ruff in isolated mode, so the repo's own ruff settings never change what
+# the generator writes, and without a cache, so nothing extra lands in the
+# generated directory.
+post_hooks:
+  - "ruff check . --isolated --no-cache --fix-only --extend-select=I"
+  - "ruff format . --isolated --no-cache"
