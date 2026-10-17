@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "description": "Pins the Prism mock server the contract tests run against (scripts/contract.sh).",
+  "dependencies": {
+    "@stoplight/prism-cli": "5.16.0"
+  }
+}
