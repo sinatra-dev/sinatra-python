@@ -15,10 +15,14 @@
 #            artifact.
 #   gate     Say whether the publish and tag jobs will run, and why not.
 # Job "publish" (id-token: write, installs nothing):
-#   check    Refuse if main moved since the build. Compare the built files
-#            with what PyPI already has for this version: refuse if PyPI has
-#            a file this build didn't make, skip the upload if it has them
-#            all, otherwise let pypa/gh-action-pypi-publish upload them.
+#   check    Refuse if main moved since the build. Hash the artifact's dist/
+#            (exactly one sdist and one wheel) and compare with what PyPI
+#            already has for this version: refuse if PyPI has a file this
+#            build didn't make, skip the upload if it has them all, otherwise
+#            let pypa/gh-action-pypi-publish upload them (PyPI accepts a
+#            byte-identical file again, so no skip-existing).
+#   verify   After the upload: wait until PyPI lists every built file with
+#            its sha256 (retrying for CDN lag); fail otherwise.
 # Job "tag" (contents: write, installs nothing):
 #   tag      Create the missing GitHub release, if any. Check the release
 #            commit, push it and its vX.Y.Z tag to main in one atomic push,
@@ -28,6 +32,7 @@
 #   SPEC_URL         the live spec (default https://api.sinatra.dev/openapi.json)
 #   SPEC_FILE        read the spec from this file instead of SPEC_URL
 #   PYPI_URL         the package index's JSON API (default https://pypi.org)
+#   VERIFY_ATTEMPTS  verify's tries (default 20), VERIFY_DELAY seconds between (default 15)
 #   DRY_RUN          "true" for a workflow_dispatch dry run (gate's notice only)
 #   PUBLISH_ENABLED  "true" when publishing is on (gate's notice only; the
 #                    workflow's job conditions are the real gate)
@@ -42,9 +47,10 @@ PYPI_URL=${PYPI_URL:-https://pypi.org}
 BRANCH=${RELEASE_BRANCH:-main}
 STATE=release-state
 # Only commits touching these count as a reason to release: the package
-# source (generated code included), its metadata and the generator config.
+# source (generated code included), its metadata, the generator config and
+# the locked build backend.
 # Docs, CI, test and lockfile-only commits wait for the next release.
-RELEASE_PATHS=(src pyproject.toml openapi-python-client.yaml)
+RELEASE_PATHS=(src pyproject.toml openapi-python-client.yaml build-constraints.txt)
 PATH="$PWD/.tools/bin:$PATH"
 
 die() {
@@ -200,21 +206,32 @@ step_pack() {
   # Build from the release commit. hatchling's builds are reproducible, so a
   # rebuild of the same tree gives the same files (and sha256s).
   rm -rf "$STATE/dist"
-  uv build -q --sdist --wheel -o "$STATE/dist"
-  local name file count=0
-  : >"$STATE/sha256s"
-  for file in "$STATE"/dist/*; do
-    name=$(basename "$file")
-    case "$name" in
-      sinatra_dev-"$version"-py3-none-any.whl | sinatra_dev-"$version".tar.gz) ;;
-      *) die "the build made an unexpected file, $name" ;;
-    esac
-    printf '%s  %s\n' "$(sha256 "$file")" "$name" >>"$STATE/sha256s"
-    count=$((count + 1))
-  done
-  [ "$count" -eq 2 ] || die "expected a wheel and an sdist, got $count files"
+  bash scripts/build.sh "$STATE/dist" -q --sdist --wheel
+  dist_sha256s "$version" >"$STATE/sha256s"
   echo "Built from release commit $(state release-sha):"
   cat "$STATE/sha256s"
+}
+
+# dist_sha256s <version>: "sha256  filename" for each file in $STATE/dist,
+# sorted, computed from the files themselves. Fails unless the directory holds
+# exactly this version's sdist and wheel and nothing else.
+dist_sha256s() {
+  local version=$1 wheel sdist name
+  wheel="sinatra_dev-$version-py3-none-any.whl"
+  sdist="sinatra_dev-$version.tar.gz"
+  [ -d "$STATE/dist" ] || die "$STATE/dist is missing"
+  while IFS= read -r -d '' name; do
+    name=${name#"$STATE/dist/"}
+    [ "$name" = "$wheel" ] || [ "$name" = "$sdist" ] ||
+      die "$STATE/dist holds $name; it may hold only $sdist and $wheel"
+  done < <(find "$STATE/dist" -mindepth 1 -print0)
+  [ -f "$STATE/dist/$wheel" ] && [ ! -L "$STATE/dist/$wheel" ] || die "$STATE/dist has no $wheel"
+  [ -f "$STATE/dist/$sdist" ] && [ ! -L "$STATE/dist/$sdist" ] || die "$STATE/dist has no $sdist"
+  local sha
+  for name in "$sdist" "$wheel"; do
+    sha=$(sha256 "$STATE/dist/$name") || die "couldn't hash $name"
+    printf '%s  %s\n' "$sha" "$name"
+  done | sort
 }
 
 step_gate() {
@@ -245,36 +262,33 @@ step_check() {
   version=$(state version)
   base=$(state base-sha)
 
+  # Hash what will be uploaded, rather than trusting the artifact's list.
+  local built
+  built=$(dist_sha256s "$version") || exit 1
+  [ "$built" = "$(sort "$STATE/sha256s")" ] ||
+    die "the artifact's dist/ doesn't match the sha256s the build recorded; not publishing. Built: $(tr '\n' ' ' <"$STATE/sha256s") In dist/: $(tr '\n' ' ' <<<"$built")"
+  echo "$built" >"$STATE/dist-sha256s"
+
   head=$(remote_head)
   if [ "$head" != "$base" ]; then
     die "$BRANCH moved from $base to $head since this run built; not publishing v$version. The next run releases the new $BRANCH."
   fi
 
-  # What PyPI has for this version: one "sha256  filename" line per file.
-  local url="$PYPI_URL/pypi/$PACKAGE/$version/json" code
-  code=$(curl -sS --retry 3 --max-time 60 -o "$STATE/pypi.json" -w '%{http_code}' "$url") ||
-    die "couldn't check whether $PACKAGE $version is on PyPI: $url didn't answer"
-  case "$code" in
-    404)
-      echo "$PACKAGE $version isn't on PyPI yet; uploading it."
-      output "upload=true"
-      return 0
-      ;;
-    200) ;;
-    *) die "couldn't check whether $PACKAGE $version is on PyPI: $url answered $code" ;;
-  esac
-  jq -r '.urls[] | "\(.digests.sha256)  \(.filename)"' "$STATE/pypi.json" | sort >"$STATE/pypi-sha256s" ||
-    die "$url didn't answer with PyPI's JSON"
+  if ! pypi_sha256s "$version"; then
+    echo "$PACKAGE $version isn't on PyPI yet; uploading it."
+    output "upload=true"
+    return 0
+  fi
 
   local line missing=0
   while IFS= read -r line; do
     [ -n "$line" ] || continue
-    grep -qxF -- "$line" "$STATE/sha256s" ||
-      die "$PACKAGE $version is already on PyPI with a file this build didn't make ($line); this build made: $(tr '\n' ' ' <"$STATE/sha256s"). A run published different code as v$version and failed before tagging it, so this run won't tag v$version on code that was never published. See RELEASING.md, 'A run failed after publishing'."
+    grep -qxF -- "$line" "$STATE/dist-sha256s" ||
+      die "$PACKAGE $version is already on PyPI with a file this build didn't make ($line); this build made: $(tr '\n' ' ' <"$STATE/dist-sha256s"). A run published different code as v$version and failed before tagging it, so this run won't tag v$version on code that was never published. See RELEASING.md, 'A run failed after publishing'."
   done <"$STATE/pypi-sha256s"
   while IFS= read -r line; do
     grep -qxF -- "$line" "$STATE/pypi-sha256s" || missing=$((missing + 1))
-  done <"$STATE/sha256s"
+  done <"$STATE/dist-sha256s"
 
   if [ "$missing" -eq 0 ]; then
     notice "$PACKAGE $version is already on PyPI with this build's files: a previous run published it and failed before tagging. Not uploading again."
@@ -283,6 +297,53 @@ step_check() {
     echo "$PACKAGE $version is on PyPI with $missing of this build's files missing; uploading them (the others match)."
     output "upload=true"
   fi
+}
+
+# pypi_sha256s <version>: writes what PyPI lists for the version to
+# $STATE/pypi-sha256s ("sha256  filename" per file, sorted). Returns 1 when
+# PyPI has no such version (404); dies on any other failure.
+pypi_sha256s() {
+  local url="$PYPI_URL/pypi/$PACKAGE/$1/json" code
+  code=$(curl -sS --retry 3 --max-time 60 -o "$STATE/pypi.json" -w '%{http_code}' "$url") ||
+    die "couldn't check whether $PACKAGE $1 is on PyPI: $url didn't answer"
+  case "$code" in
+    404) : >"$STATE/pypi-sha256s" && return 1 ;;
+    200) ;;
+    *) die "couldn't check whether $PACKAGE $1 is on PyPI: $url answered $code" ;;
+  esac
+  jq -r '.urls[] | "\(.digests.sha256)  \(.filename)"' "$STATE/pypi.json" | sort >"$STATE/pypi-sha256s" ||
+    die "$url didn't answer with PyPI's JSON"
+}
+
+# After the upload, PyPI must list exactly this build's files. Its JSON API
+# sits behind a CDN that can lag an upload, so a missing file is retried; a
+# file with another sha256 (or one this build didn't make) fails at once.
+step_verify() {
+  local version attempts delay try line missing
+  version=$(state version)
+  attempts=${VERIFY_ATTEMPTS:-20}
+  delay=${VERIFY_DELAY:-15}
+  [ -s "$STATE/dist-sha256s" ] || die "run check first: $STATE/dist-sha256s is missing"
+  for ((try = 1; try <= attempts; try++)); do
+    missing=0
+    if pypi_sha256s "$version"; then
+      while IFS= read -r line; do
+        [ -n "$line" ] || continue
+        grep -qxF -- "$line" "$STATE/dist-sha256s" ||
+          die "PyPI lists $line for $PACKAGE $version, which this build didn't make; this build made: $(tr '\n' ' ' <"$STATE/dist-sha256s"). Not tagging."
+      done <"$STATE/pypi-sha256s"
+    fi
+    while IFS= read -r line; do
+      grep -qxF -- "$line" "$STATE/pypi-sha256s" || missing=$((missing + 1))
+    done <"$STATE/dist-sha256s"
+    if [ "$missing" -eq 0 ]; then
+      echo "PyPI lists every file of $PACKAGE $version with this build's sha256 (try $try)."
+      return 0
+    fi
+    echo "PyPI doesn't list $missing of this build's files for $PACKAGE $version yet (try $try of $attempts)."
+    [ "$try" -lt "$attempts" ] && sleep "$delay"
+  done
+  die "after $attempts tries, PyPI still doesn't list all of this build's files for $PACKAGE $version; not tagging. Built: $(tr '\n' ' ' <"$STATE/dist-sha256s")"
 }
 
 # toml_without <file> <python expression deleting the version from `d`>:
@@ -313,13 +374,17 @@ verify_release_commit() {
   [ "$parents" = "$base" ] ||
     die "release commit $sha must have exactly one parent, $base; it has: ${parents:-none}"
   # --no-renames: a rename must show its source too, or moving a file into
-  # the generated directory would pass as an addition there.
+  # the generated directory would pass as an addition there. Written to a
+  # file first, so a git failure stops the check instead of reading as "no
+  # changes".
+  git diff --no-renames --name-only -z "$base" "$sha" >"$STATE/release-paths" ||
+    die "couldn't list the files release commit $sha changes"
   while IFS= read -r -d '' path; do
     case "$path" in
       openapi.json | pyproject.toml | uv.lock | "$GENERATED"/*) ;;
       *) die "release commit $sha changes $path; a release commit may only change openapi.json, $GENERATED/, pyproject.toml and uv.lock" ;;
     esac
-  done < <(git diff --no-renames --name-only -z "$base" "$sha")
+  done <"$STATE/release-paths"
   # The manifests may change only their version. Each side is read on its
   # own, so a file that doesn't parse fails the check instead of comparing
   # two empty strings.
@@ -337,6 +402,11 @@ verify_release_commit() {
   new_version=$(git show "$sha:pyproject.toml" | python3 -c 'import sys, tomllib; print(tomllib.loads(sys.stdin.read())["project"]["version"])') ||
     die "release commit $sha has no [project] version"
   [ "$new_version" = "$version" ] || die "release commit $sha sets pyproject.toml's version to $new_version, not $version"
+  new_version=$(git show "$sha:uv.lock" | python3 -c '
+import sys, tomllib
+root = [p for p in tomllib.loads(sys.stdin.read())["package"] if p["name"] == "sinatra-dev" and p.get("source") == {"editable": "."}]
+print(root[0]["version"] if len(root) == 1 else "")') || die "release commit $sha has a uv.lock that doesn't parse"
+  [ "$new_version" = "$version" ] || die "release commit $sha sets uv.lock's sinatra-dev version to ${new_version:-nothing}, not $version"
 }
 
 step_tag() {
@@ -359,6 +429,6 @@ step_tag() {
 }
 
 case "${1:-}" in
-  plan | version | pack | gate | check | tag) "step_$1" ;;
-  *) die "usage: release.sh plan|version|pack|gate|check|tag" ;;
+  plan | version | pack | gate | check | verify | tag) "step_$1" ;;
+  *) die "usage: release.sh plan|version|pack|gate|check|verify|tag" ;;
 esac

@@ -46,8 +46,8 @@ jobs:
       - name: next-version.sh tests
         run: PATH="$PWD/.tools/bin:$PATH" bash scripts/next-version.test.sh
 
-      - name: Build the sdist and wheel
-        run: uv build -o dist
+      - name: Build the sdist and wheel (locked build backend)
+        run: bash scripts/build.sh dist
       - name: Package contents
         run: |
           tar -tzf dist/*.tar.gz
@@ -74,5 +74,5 @@ jobs:
         run: uv run --locked pytest
       - name: Smoke-test the wheel in a clean venv
         run: |
-          uv build --wheel -o dist
+          bash scripts/build.sh dist --wheel
           bash scripts/smoke.sh ${{ matrix.python }} dist/*.whl

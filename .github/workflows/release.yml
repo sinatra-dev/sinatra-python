@@ -145,8 +145,10 @@ jobs:
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
         with:
           packages-dir: release-state/dist/
-          # Only files the check found to be missing, or identical, on PyPI.
-          skip-existing: true
+          # No skip-existing: PyPI accepts a byte-identical file again, and
+          # refuses a different one under the same name, which must fail.
+      - name: Check that PyPI lists every built file
+        run: bash scripts/release.sh verify
 
   tag:
     needs: [build, publish]
