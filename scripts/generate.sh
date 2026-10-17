@@ -5,9 +5,11 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# Wholesale: --overwrite only clears models/ and api/, so a stray file next
+# to them would survive (and pass the drift check) without this.
+rm -rf src/sinatra_dev/_generated
 uv run --locked openapi-python-client generate \
   --path openapi.json \
   --meta none \
   --output-path src/sinatra_dev/_generated \
-  --config openapi-python-client.yaml \
-  --overwrite
+  --config openapi-python-client.yaml
