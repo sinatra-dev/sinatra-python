@@ -53,8 +53,10 @@ STATE=release-state
 RELEASE_PATHS=(src pyproject.toml openapi-python-client.yaml build-constraints.txt)
 PATH="$PWD/.tools/bin:$PATH"
 
+# On stderr, also in Actions (which reads workflow commands from both), so a
+# die inside $(...) is still seen.
 die() {
-  if [ -n "${GITHUB_ACTIONS:-}" ]; then echo "::error title=release::$*"; else echo "release: $*" >&2; fi
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then echo "::error title=release::$*" >&2; else echo "release: $*" >&2; fi
   exit 1
 }
 notice() {
