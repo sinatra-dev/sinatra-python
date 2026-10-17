@@ -207,6 +207,8 @@ step_pack() {
   # rebuild of the same tree gives the same files (and sha256s).
   rm -rf "$STATE/dist"
   bash scripts/build.sh "$STATE/dist" -q --sdist --wheel
+  # uv marks its output directory with a `*` .gitignore; it isn't a build file.
+  rm -f "$STATE/dist/.gitignore"
   dist_sha256s "$version" >"$STATE/sha256s"
   echo "Built from release commit $(state release-sha):"
   cat "$STATE/sha256s"
