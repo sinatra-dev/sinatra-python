@@ -1,16 +1,30 @@
 [project]
 name = "sinatra-dev"
 version = "0.1.0"
-description = "Python client for the Sinatra API: start, follow and stop Sinatra tasks, and delegate Linear and GitHub issues."
+description = "Official Python client for sinatra.dev, the AI coding agent that turns Linear and GitHub issues into pull requests: start, follow and stop tasks, and delegate issues."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
 authors = [{ name = "Sinatra", email = "contact@sinatra.dev" }]
-keywords = ["sinatra", "sinatra.dev", "sdk", "api-client", "coding-agent"]
+keywords = [
+    "sinatra",
+    "sinatra.dev",
+    "sdk",
+    "api-client",
+    "coding-agent",
+    "ai-coding-agent",
+    "background-agent",
+    "linear",
+    "github",
+    "pull-request",
+    "automation",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.11",
@@ -27,7 +41,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://sinatra.dev"
+Homepage = "https://www.sinatra.dev"
 Documentation = "https://docs.sinatra.dev/docs/api-reference"
 Repository = "https://github.com/sinatra-dev/sinatra-python"
 Issues = "https://github.com/sinatra-dev/sinatra-python/issues"
@@ -68,7 +82,7 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
-files = ["src/sinatra_dev", "tests"]
+files = ["src/sinatra_dev", "tests", "examples"]
 
 # The generated httpx Client/AuthenticatedClient wrappers don't pass strict
 # mypy, and the wrapper never uses them (it sends requests itself). The rest
