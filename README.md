@@ -1,8 +1,10 @@
-# sinatra-dev
+# Sinatra Python SDK
 
-A Python client for the [Sinatra API](https://docs.sinatra.dev/docs/api-reference): start, follow and stop Sinatra tasks, and delegate Linear and GitHub issues.
+`sinatra-dev` is the official Python client for [sinatra.dev](https://www.sinatra.dev), the hosted AI coding agent that turns Linear and GitHub issues into pull requests. Assign Sinatra an issue, mention it in Slack, or start a task from code, and it writes the change in its own sandbox and opens a draft pull request for your team to review.
 
-It runs on Python 3.11 and later, is typed (`py.typed`), and depends only on `httpx` and `attrs`. The client is generated from the API's [OpenAPI spec](https://api.sinatra.dev/openapi.json) and released automatically when the spec changes.
+With this client you can start, follow and stop Sinatra tasks and delegate Linear and GitHub issues from your own scripts, CI jobs and tools, through the [Sinatra API](https://docs.sinatra.dev/docs/api-reference).
+
+It runs on Python 3.11 and later, is typed (`py.typed`), and depends only on `httpx` and `attrs`. The client is generated from the API's [OpenAPI spec](https://api.sinatra.dev/openapi.json) and released automatically when the spec changes. There are also official SDKs for [Node.js / TypeScript](https://github.com/sinatra-dev/sinatra-node) and [Go](https://github.com/sinatra-dev/sinatra-go); see [SDKs](https://docs.sinatra.dev/docs/sdks).
 
 ## Install
 
@@ -43,6 +45,20 @@ with Sinatra() as sinatra:  # reads SINATRA_TOKEN
 ```
 
 The API has no streaming. To wait for a reply, read the conversation after the last entry you've seen, and check the task's `status`: the agent posts one reply per turn, and the turn is done when the task stops working. The loop reads the status before the conversation, so it never stops before printing the reply that ended the turn. An unknown status counts as done, so the loop can't wait forever on a status added after this was written. See [How replies work](https://docs.sinatra.dev/docs/cli-and-api#how-replies-work).
+
+## Examples
+
+[`examples/`](https://github.com/sinatra-dev/sinatra-python/tree/main/examples) has small programs you can run as they are:
+
+- [`delegate_issue.py`](https://github.com/sinatra-dev/sinatra-python/blob/main/examples/delegate_issue.py): hand Sinatra a Linear issue (`ENG-123`) or a GitHub issue (`acme/web#42`), for example from a CI job.
+- [`search_issues.py`](https://github.com/sinatra-dev/sinatra-python/blob/main/examples/search_issues.py): list the open issues you could delegate, yours first.
+- [`open_prs.py`](https://github.com/sinatra-dev/sinatra-python/blob/main/examples/open_prs.py): print the pull requests Sinatra has open in each workspace as a Markdown list, for a standup or a Slack post.
+
+With the package installed (`pip install sinatra-dev`), or from a checkout with `uv run`:
+
+```sh
+SINATRA_TOKEN=sntr_... uv run python examples/open_prs.py
+```
 
 ## Authentication
 
