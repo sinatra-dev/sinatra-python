@@ -122,9 +122,10 @@ def sync_detailed(
     Only `prompt` is required. `title` defaults to the prompt's first line, up to 80 characters. `repo`
     is optional: omit it to let the agent choose a repository.
 
-    Before it makes the task, Sinatra checks that the workspace is connected to GitHub, that billing
-    allows the task, and that the queue has room. A refusal says which in its `error` code, and a retry
-    with the same key of a start that already made its task is never refused.
+    Before it makes the task, Sinatra checks that the workspace is connected to GitHub when the start
+    names a repository (without GitHub a task that names none can still answer, research or plan), that
+    billing allows the task, and that the queue has room. A refusal says which in its `error` code, and
+    a retry with the same key of a start that already made its task is never refused.
 
     Send an `Idempotency-Key` so a retry is safe. A start retried with the same key returns the same
     task and never starts a second one. The same key with a different prompt, or a different repository
@@ -182,9 +183,10 @@ def sync(
     Only `prompt` is required. `title` defaults to the prompt's first line, up to 80 characters. `repo`
     is optional: omit it to let the agent choose a repository.
 
-    Before it makes the task, Sinatra checks that the workspace is connected to GitHub, that billing
-    allows the task, and that the queue has room. A refusal says which in its `error` code, and a retry
-    with the same key of a start that already made its task is never refused.
+    Before it makes the task, Sinatra checks that the workspace is connected to GitHub when the start
+    names a repository (without GitHub a task that names none can still answer, research or plan), that
+    billing allows the task, and that the queue has room. A refusal says which in its `error` code, and
+    a retry with the same key of a start that already made its task is never refused.
 
     Send an `Idempotency-Key` so a retry is safe. A start retried with the same key returns the same
     task and never starts a second one. The same key with a different prompt, or a different repository
@@ -237,9 +239,10 @@ async def asyncio_detailed(
     Only `prompt` is required. `title` defaults to the prompt's first line, up to 80 characters. `repo`
     is optional: omit it to let the agent choose a repository.
 
-    Before it makes the task, Sinatra checks that the workspace is connected to GitHub, that billing
-    allows the task, and that the queue has room. A refusal says which in its `error` code, and a retry
-    with the same key of a start that already made its task is never refused.
+    Before it makes the task, Sinatra checks that the workspace is connected to GitHub when the start
+    names a repository (without GitHub a task that names none can still answer, research or plan), that
+    billing allows the task, and that the queue has room. A refusal says which in its `error` code, and
+    a retry with the same key of a start that already made its task is never refused.
 
     Send an `Idempotency-Key` so a retry is safe. A start retried with the same key returns the same
     task and never starts a second one. The same key with a different prompt, or a different repository
@@ -295,9 +298,10 @@ async def asyncio(
     Only `prompt` is required. `title` defaults to the prompt's first line, up to 80 characters. `repo`
     is optional: omit it to let the agent choose a repository.
 
-    Before it makes the task, Sinatra checks that the workspace is connected to GitHub, that billing
-    allows the task, and that the queue has room. A refusal says which in its `error` code, and a retry
-    with the same key of a start that already made its task is never refused.
+    Before it makes the task, Sinatra checks that the workspace is connected to GitHub when the start
+    names a repository (without GitHub a task that names none can still answer, research or plan), that
+    billing allows the task, and that the queue has room. A refusal says which in its `error` code, and
+    a retry with the same key of a start that already made its task is never refused.
 
     Send an `Idempotency-Key` so a retry is safe. A start retried with the same key returns the same
     task and never starts a second one. The same key with a different prompt, or a different repository
