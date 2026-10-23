@@ -121,7 +121,8 @@ def sync_detailed(
     before the issue is touched.
 
     A refusal returns an `error` code and a `reason` that says what to fix, for example `{"error":
-    "linear_identity_unlinked", "reason": "Link your Linear identity in Settings first."}`.
+    "linear_identity_unlinked", "reason": "Connect your Linear account in Settings to search and
+    delegate Linear issues."}`.
 
     Args:
         workspace_id (str):
@@ -166,7 +167,8 @@ def sync(
     before the issue is touched.
 
     A refusal returns an `error` code and a `reason` that says what to fix, for example `{"error":
-    "linear_identity_unlinked", "reason": "Link your Linear identity in Settings first."}`.
+    "linear_identity_unlinked", "reason": "Connect your Linear account in Settings to search and
+    delegate Linear issues."}`.
 
     Args:
         workspace_id (str):
@@ -206,7 +208,8 @@ async def asyncio_detailed(
     before the issue is touched.
 
     A refusal returns an `error` code and a `reason` that says what to fix, for example `{"error":
-    "linear_identity_unlinked", "reason": "Link your Linear identity in Settings first."}`.
+    "linear_identity_unlinked", "reason": "Connect your Linear account in Settings to search and
+    delegate Linear issues."}`.
 
     Args:
         workspace_id (str):
@@ -249,7 +252,8 @@ async def asyncio(
     before the issue is touched.
 
     A refusal returns an `error` code and a `reason` that says what to fix, for example `{"error":
-    "linear_identity_unlinked", "reason": "Link your Linear identity in Settings first."}`.
+    "linear_identity_unlinked", "reason": "Connect your Linear account in Settings to search and
+    delegate Linear issues."}`.
 
     Args:
         workspace_id (str):
