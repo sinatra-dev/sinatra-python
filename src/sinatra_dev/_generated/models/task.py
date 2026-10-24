@@ -26,7 +26,8 @@ class Task:
         source (str): Where the task started: `api` for the CLI, MCP, this API or the dashboard, `linear` or
             `github_issue` for an issue, `slack` or `telegram` for a chat. Other sources can appear, so treat an unknown
             value as a task started elsewhere.
-        title (None | str): The task's title. `null` for a task whose issue has no title.
+        title (None | str): The task's title: its issue's title, or a chat task's name. `null` for a task whose issue
+            has no title, or a chat task not yet named.
         repo (None | str): `owner/name` of the task's repository. `null` until a repository is chosen.
         pull_request (None | PullRequest): The task's pull request. `null` until one opens.
         queued (bool): `true` while a turn waits because the workspace is already running as many tasks at a time as its

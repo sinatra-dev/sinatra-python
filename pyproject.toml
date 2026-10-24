@@ -1,6 +1,6 @@
 [project]
 name = "sinatra-dev"
-version = "0.1.4"
+version = "0.1.5"
 description = "Official Python client for sinatra.dev, the AI coding agent that turns Linear and GitHub issues into pull requests: start, follow and stop tasks, and delegate issues."
 readme = "README.md"
 license = "MIT"
