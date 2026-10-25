@@ -120,7 +120,8 @@ def sync_detailed(
     any other: it gets a sandbox, can open a pull request, and shows up in the dashboard.
 
     Only `prompt` is required. `title` defaults to the prompt's first line, up to 80 characters. `repo`
-    is optional: omit it to let the agent choose a repository.
+    is optional: omit it to let the agent choose a repository. `model` is optional: omit it to use the
+    repository's or workspace's model. See [Models](https://docs.sinatra.dev/docs/configuration/models).
 
     Before it makes the task, Sinatra checks that the workspace is connected to GitHub when the start
     names a repository (without GitHub a task that names none can still answer, research or plan), that
@@ -128,9 +129,9 @@ def sync_detailed(
     a retry with the same key of a start that already made its task is never refused.
 
     Send an `Idempotency-Key` so a retry is safe. A start retried with the same key returns the same
-    task and never starts a second one. The same key with a different prompt, or a different repository
-    or title if you send them, is `409 idempotency_conflict`. Keys belong to the person who sent them.
-    The key becomes the first message's `messageId`.
+    task and never starts a second one. The same key with a different prompt, or a different repository,
+    title or model if you send them, is `409 idempotency_conflict`. Keys belong to the person who sent
+    them. The key becomes the first message's `messageId`.
 
     If Sinatra saves your request but can't hand it to the agent yet, it answers `503 unavailable` with
     the new `taskId` and `messageId`. Retry with the same key, or send a message on that task, which
@@ -181,7 +182,8 @@ def sync(
     any other: it gets a sandbox, can open a pull request, and shows up in the dashboard.
 
     Only `prompt` is required. `title` defaults to the prompt's first line, up to 80 characters. `repo`
-    is optional: omit it to let the agent choose a repository.
+    is optional: omit it to let the agent choose a repository. `model` is optional: omit it to use the
+    repository's or workspace's model. See [Models](https://docs.sinatra.dev/docs/configuration/models).
 
     Before it makes the task, Sinatra checks that the workspace is connected to GitHub when the start
     names a repository (without GitHub a task that names none can still answer, research or plan), that
@@ -189,9 +191,9 @@ def sync(
     a retry with the same key of a start that already made its task is never refused.
 
     Send an `Idempotency-Key` so a retry is safe. A start retried with the same key returns the same
-    task and never starts a second one. The same key with a different prompt, or a different repository
-    or title if you send them, is `409 idempotency_conflict`. Keys belong to the person who sent them.
-    The key becomes the first message's `messageId`.
+    task and never starts a second one. The same key with a different prompt, or a different repository,
+    title or model if you send them, is `409 idempotency_conflict`. Keys belong to the person who sent
+    them. The key becomes the first message's `messageId`.
 
     If Sinatra saves your request but can't hand it to the agent yet, it answers `503 unavailable` with
     the new `taskId` and `messageId`. Retry with the same key, or send a message on that task, which
@@ -237,7 +239,8 @@ async def asyncio_detailed(
     any other: it gets a sandbox, can open a pull request, and shows up in the dashboard.
 
     Only `prompt` is required. `title` defaults to the prompt's first line, up to 80 characters. `repo`
-    is optional: omit it to let the agent choose a repository.
+    is optional: omit it to let the agent choose a repository. `model` is optional: omit it to use the
+    repository's or workspace's model. See [Models](https://docs.sinatra.dev/docs/configuration/models).
 
     Before it makes the task, Sinatra checks that the workspace is connected to GitHub when the start
     names a repository (without GitHub a task that names none can still answer, research or plan), that
@@ -245,9 +248,9 @@ async def asyncio_detailed(
     a retry with the same key of a start that already made its task is never refused.
 
     Send an `Idempotency-Key` so a retry is safe. A start retried with the same key returns the same
-    task and never starts a second one. The same key with a different prompt, or a different repository
-    or title if you send them, is `409 idempotency_conflict`. Keys belong to the person who sent them.
-    The key becomes the first message's `messageId`.
+    task and never starts a second one. The same key with a different prompt, or a different repository,
+    title or model if you send them, is `409 idempotency_conflict`. Keys belong to the person who sent
+    them. The key becomes the first message's `messageId`.
 
     If Sinatra saves your request but can't hand it to the agent yet, it answers `503 unavailable` with
     the new `taskId` and `messageId`. Retry with the same key, or send a message on that task, which
@@ -296,7 +299,8 @@ async def asyncio(
     any other: it gets a sandbox, can open a pull request, and shows up in the dashboard.
 
     Only `prompt` is required. `title` defaults to the prompt's first line, up to 80 characters. `repo`
-    is optional: omit it to let the agent choose a repository.
+    is optional: omit it to let the agent choose a repository. `model` is optional: omit it to use the
+    repository's or workspace's model. See [Models](https://docs.sinatra.dev/docs/configuration/models).
 
     Before it makes the task, Sinatra checks that the workspace is connected to GitHub when the start
     names a repository (without GitHub a task that names none can still answer, research or plan), that
@@ -304,9 +308,9 @@ async def asyncio(
     a retry with the same key of a start that already made its task is never refused.
 
     Send an `Idempotency-Key` so a retry is safe. A start retried with the same key returns the same
-    task and never starts a second one. The same key with a different prompt, or a different repository
-    or title if you send them, is `409 idempotency_conflict`. Keys belong to the person who sent them.
-    The key becomes the first message's `messageId`.
+    task and never starts a second one. The same key with a different prompt, or a different repository,
+    title or model if you send them, is `409 idempotency_conflict`. Keys belong to the person who sent
+    them. The key becomes the first message's `messageId`.
 
     If Sinatra saves your request but can't hand it to the agent yet, it answers `503 unavailable` with
     the new `taskId` and `messageId`. Retry with the same key, or send a message on that task, which
