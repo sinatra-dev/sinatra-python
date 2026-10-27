@@ -22,7 +22,7 @@ class CreateTaskRequest:
         repo (None | str | Unset): `owner/name` of a repository connected to the workspace. Omit it to let the agent
             choose.
         model (None | str | Unset): A model from Sinatra's catalog, such as `anthropic/claude-opus-5-5` or `openai-
-            codex/gpt-6.1-sol`, that every turn of the task runs on. The model picks its engine. Omit it to use the
+            codex/gpt-6.1-sol`, that every agent on the task runs on. The model picks its engine. Omit it to use the
             repository's or workspace's model.
     """
 

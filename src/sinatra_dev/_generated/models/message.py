@@ -20,9 +20,9 @@ class Message:
             generated id. `null` on every other entry.
         role (str): Who wrote it: `user` for a person, `agent` for the agent, `platform` for Sinatra itself. New roles
             can appear.
-        kind (str): What it is: `message` (a person's message), `response` (the agent's answer for a turn, or a notice
-            from Sinatra such as a stop or files the agent produced), `clarify` (a question the agent needs answered to
-            continue) or `error` (a refusal or failure from Sinatra). New kinds can appear.
+        kind (str): What it is: `message` (a person's message), `response` (the agent's answer, or a notice from Sinatra
+            such as a stop or files the agent produced), `clarify` (a question the agent needs answered to continue) or
+            `error` (a refusal or failure from Sinatra). New kinds can appear.
         body (str): The text.
         created_at (datetime.datetime): When it was written.
     """

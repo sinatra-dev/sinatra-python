@@ -105,7 +105,7 @@ def sync_detailed(
 ) -> Response[Error | StopTaskResponse]:
     """Stop a task
 
-     Stops the task's running turn and returns `202` with `{"accepted": true}`. It works on any task in
+     Stops the task's running agent and returns `202` with `{"accepted": true}`. It works on any task in
     the workspace, whatever its source, and any member can stop one. A completed or cancelled task, or
     one whose session has already ended, is `409 not_running`.
 
@@ -141,7 +141,7 @@ def sync(
 ) -> Error | StopTaskResponse | None:
     """Stop a task
 
-     Stops the task's running turn and returns `202` with `{"accepted": true}`. It works on any task in
+     Stops the task's running agent and returns `202` with `{"accepted": true}`. It works on any task in
     the workspace, whatever its source, and any member can stop one. A completed or cancelled task, or
     one whose session has already ended, is `409 not_running`.
 
@@ -172,7 +172,7 @@ async def asyncio_detailed(
 ) -> Response[Error | StopTaskResponse]:
     """Stop a task
 
-     Stops the task's running turn and returns `202` with `{"accepted": true}`. It works on any task in
+     Stops the task's running agent and returns `202` with `{"accepted": true}`. It works on any task in
     the workspace, whatever its source, and any member can stop one. A completed or cancelled task, or
     one whose session has already ended, is `409 not_running`.
 
@@ -206,7 +206,7 @@ async def asyncio(
 ) -> Error | StopTaskResponse | None:
     """Stop a task
 
-     Stops the task's running turn and returns `202` with `{"accepted": true}`. It works on any task in
+     Stops the task's running agent and returns `202` with `{"accepted": true}`. It works on any task in
     the workspace, whatever its source, and any member can stop one. A completed or cancelled task, or
     one whose session has already ended, is `409 not_running`.
 

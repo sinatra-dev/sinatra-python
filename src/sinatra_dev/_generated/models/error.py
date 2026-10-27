@@ -35,8 +35,8 @@ class Error:
             `payment_required`; billing, when starting a task, on `capacity_full`.
         settings_url (str | Unset): The settings page that fixes the refusal, on `github_not_connected`.
         plan (str | Unset): The workspace's plan, on `capacity_full` when starting a task.
-        running (int | Unset): How many tasks the plan runs at a time, on `capacity_full` when starting a task.
-        queued (int | Unset): How many tasks the plan queues, on `capacity_full` when starting a task.
+        running (int | Unset): How many agents the plan runs at a time, on `capacity_full` when starting a task.
+        queued (int | Unset): How many agents the plan lets wait, on `capacity_full` when starting a task.
         task_id (str | Unset): On `unavailable` after a start: the task that was made. Retry with the same key, or send
             a message on it.
         message_id (str | Unset): On `unavailable`: the message that was saved but not sent yet. Retry with it as the

@@ -125,10 +125,10 @@ def sync_detailed(
     Follow up on other tasks, such as Linear or GitHub issues, where they started; here they return `409
     not_an_api_task`. A task that has been idle for a while picks up again when you follow up.
 
-    A message sent while the agent is working doesn't change the current turn. It waits and runs as the
-    next turn. A message isn't refused when the workspace is running its limit of tasks: its turn takes
-    a place in the queue, and if the queue is full, the refusal appears in the task's conversation
-    instead.
+    A message sent while the agent is working doesn't reach it. It waits and starts the next agent. A
+    message isn't refused when the workspace is running as many agents at a time as its plan allows: the
+    agent it starts takes a place in the queue, and if the queue is full, the refusal appears in the
+    task's conversation instead.
 
     Send an `Idempotency-Key` so a retry is safe: a message retried with the same key is sent once. Keys
     belong to their sender, so two people using the same key send two messages. The key becomes the
@@ -181,10 +181,10 @@ def sync(
     Follow up on other tasks, such as Linear or GitHub issues, where they started; here they return `409
     not_an_api_task`. A task that has been idle for a while picks up again when you follow up.
 
-    A message sent while the agent is working doesn't change the current turn. It waits and runs as the
-    next turn. A message isn't refused when the workspace is running its limit of tasks: its turn takes
-    a place in the queue, and if the queue is full, the refusal appears in the task's conversation
-    instead.
+    A message sent while the agent is working doesn't reach it. It waits and starts the next agent. A
+    message isn't refused when the workspace is running as many agents at a time as its plan allows: the
+    agent it starts takes a place in the queue, and if the queue is full, the refusal appears in the
+    task's conversation instead.
 
     Send an `Idempotency-Key` so a retry is safe: a message retried with the same key is sent once. Keys
     belong to their sender, so two people using the same key send two messages. The key becomes the
@@ -232,10 +232,10 @@ async def asyncio_detailed(
     Follow up on other tasks, such as Linear or GitHub issues, where they started; here they return `409
     not_an_api_task`. A task that has been idle for a while picks up again when you follow up.
 
-    A message sent while the agent is working doesn't change the current turn. It waits and runs as the
-    next turn. A message isn't refused when the workspace is running its limit of tasks: its turn takes
-    a place in the queue, and if the queue is full, the refusal appears in the task's conversation
-    instead.
+    A message sent while the agent is working doesn't reach it. It waits and starts the next agent. A
+    message isn't refused when the workspace is running as many agents at a time as its plan allows: the
+    agent it starts takes a place in the queue, and if the queue is full, the refusal appears in the
+    task's conversation instead.
 
     Send an `Idempotency-Key` so a retry is safe: a message retried with the same key is sent once. Keys
     belong to their sender, so two people using the same key send two messages. The key becomes the
@@ -286,10 +286,10 @@ async def asyncio(
     Follow up on other tasks, such as Linear or GitHub issues, where they started; here they return `409
     not_an_api_task`. A task that has been idle for a while picks up again when you follow up.
 
-    A message sent while the agent is working doesn't change the current turn. It waits and runs as the
-    next turn. A message isn't refused when the workspace is running its limit of tasks: its turn takes
-    a place in the queue, and if the queue is full, the refusal appears in the task's conversation
-    instead.
+    A message sent while the agent is working doesn't reach it. It waits and starts the next agent. A
+    message isn't refused when the workspace is running as many agents at a time as its plan allows: the
+    agent it starts takes a place in the queue, and if the queue is full, the refusal appears in the
+    task's conversation instead.
 
     Send an `Idempotency-Key` so a retry is safe: a message retried with the same key is sent once. Keys
     belong to their sender, so two people using the same key send two messages. The key becomes the

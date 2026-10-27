@@ -108,15 +108,15 @@ def sync_detailed(
     that started elsewhere has no conversation here (`409 not_an_api_task`); its conversation is where
     it started.
 
-    The conversation holds final answers and questions, not progress. The agent posts one reply per
-    turn: its answer, or a question when it needs your input. Sinatra adds its own notices, such as
-    errors and refusals.
+    The conversation holds final answers and questions, not progress. Each agent posts one reply: its
+    answer, or a question when it needs your input. Sinatra adds its own notices, such as errors and
+    refusals.
 
     Each entry's `role` and `kind` say what it is:
 
     - `user` and `message`: a message a person sent. `messageId` is its idempotency key, or a generated
     id.
-    - `agent` and `response`: the agent's answer for a turn.
+    - `agent` and `response`: the agent's answer.
     - `agent` and `clarify`: a question the agent needs answered to continue.
     - `platform` and `response` or `error`: a message from Sinatra itself, such as a refusal, an error,
     a stop, or files the agent produced.
@@ -124,9 +124,9 @@ def sync_detailed(
     When `next` isn't `null`, more entries follow: pass `next` as `after` to get the next page.
 
     There is no streaming. To wait for a reply, poll this endpoint with `after` set to the `id` of the
-    last entry you read, and check the task's `status` with Get a task. The turn is done when the task
-    stops working, for example when it reaches `replied` or `pr_open`. While a task is queued, its
-    conversation stays quiet; its `queued` field says so.
+    last entry you read, and check the task's `status` with Get a task. The agent has handed back when
+    the task stops working, for example when it reaches `replied` or `pr_open`. While a task is waiting
+    for a running agent to finish, its conversation stays quiet; its `queued` field says so.
 
     Args:
         workspace_id (str):
@@ -170,15 +170,15 @@ def sync(
     that started elsewhere has no conversation here (`409 not_an_api_task`); its conversation is where
     it started.
 
-    The conversation holds final answers and questions, not progress. The agent posts one reply per
-    turn: its answer, or a question when it needs your input. Sinatra adds its own notices, such as
-    errors and refusals.
+    The conversation holds final answers and questions, not progress. Each agent posts one reply: its
+    answer, or a question when it needs your input. Sinatra adds its own notices, such as errors and
+    refusals.
 
     Each entry's `role` and `kind` say what it is:
 
     - `user` and `message`: a message a person sent. `messageId` is its idempotency key, or a generated
     id.
-    - `agent` and `response`: the agent's answer for a turn.
+    - `agent` and `response`: the agent's answer.
     - `agent` and `clarify`: a question the agent needs answered to continue.
     - `platform` and `response` or `error`: a message from Sinatra itself, such as a refusal, an error,
     a stop, or files the agent produced.
@@ -186,9 +186,9 @@ def sync(
     When `next` isn't `null`, more entries follow: pass `next` as `after` to get the next page.
 
     There is no streaming. To wait for a reply, poll this endpoint with `after` set to the `id` of the
-    last entry you read, and check the task's `status` with Get a task. The turn is done when the task
-    stops working, for example when it reaches `replied` or `pr_open`. While a task is queued, its
-    conversation stays quiet; its `queued` field says so.
+    last entry you read, and check the task's `status` with Get a task. The agent has handed back when
+    the task stops working, for example when it reaches `replied` or `pr_open`. While a task is waiting
+    for a running agent to finish, its conversation stays quiet; its `queued` field says so.
 
     Args:
         workspace_id (str):
@@ -227,15 +227,15 @@ async def asyncio_detailed(
     that started elsewhere has no conversation here (`409 not_an_api_task`); its conversation is where
     it started.
 
-    The conversation holds final answers and questions, not progress. The agent posts one reply per
-    turn: its answer, or a question when it needs your input. Sinatra adds its own notices, such as
-    errors and refusals.
+    The conversation holds final answers and questions, not progress. Each agent posts one reply: its
+    answer, or a question when it needs your input. Sinatra adds its own notices, such as errors and
+    refusals.
 
     Each entry's `role` and `kind` say what it is:
 
     - `user` and `message`: a message a person sent. `messageId` is its idempotency key, or a generated
     id.
-    - `agent` and `response`: the agent's answer for a turn.
+    - `agent` and `response`: the agent's answer.
     - `agent` and `clarify`: a question the agent needs answered to continue.
     - `platform` and `response` or `error`: a message from Sinatra itself, such as a refusal, an error,
     a stop, or files the agent produced.
@@ -243,9 +243,9 @@ async def asyncio_detailed(
     When `next` isn't `null`, more entries follow: pass `next` as `after` to get the next page.
 
     There is no streaming. To wait for a reply, poll this endpoint with `after` set to the `id` of the
-    last entry you read, and check the task's `status` with Get a task. The turn is done when the task
-    stops working, for example when it reaches `replied` or `pr_open`. While a task is queued, its
-    conversation stays quiet; its `queued` field says so.
+    last entry you read, and check the task's `status` with Get a task. The agent has handed back when
+    the task stops working, for example when it reaches `replied` or `pr_open`. While a task is waiting
+    for a running agent to finish, its conversation stays quiet; its `queued` field says so.
 
     Args:
         workspace_id (str):
@@ -287,15 +287,15 @@ async def asyncio(
     that started elsewhere has no conversation here (`409 not_an_api_task`); its conversation is where
     it started.
 
-    The conversation holds final answers and questions, not progress. The agent posts one reply per
-    turn: its answer, or a question when it needs your input. Sinatra adds its own notices, such as
-    errors and refusals.
+    The conversation holds final answers and questions, not progress. Each agent posts one reply: its
+    answer, or a question when it needs your input. Sinatra adds its own notices, such as errors and
+    refusals.
 
     Each entry's `role` and `kind` say what it is:
 
     - `user` and `message`: a message a person sent. `messageId` is its idempotency key, or a generated
     id.
-    - `agent` and `response`: the agent's answer for a turn.
+    - `agent` and `response`: the agent's answer.
     - `agent` and `clarify`: a question the agent needs answered to continue.
     - `platform` and `response` or `error`: a message from Sinatra itself, such as a refusal, an error,
     a stop, or files the agent produced.
@@ -303,9 +303,9 @@ async def asyncio(
     When `next` isn't `null`, more entries follow: pass `next` as `after` to get the next page.
 
     There is no streaming. To wait for a reply, poll this endpoint with `after` set to the `id` of the
-    last entry you read, and check the task's `status` with Get a task. The turn is done when the task
-    stops working, for example when it reaches `replied` or `pr_open`. While a task is queued, its
-    conversation stays quiet; its `queued` field says so.
+    last entry you read, and check the task's `status` with Get a task. The agent has handed back when
+    the task stops working, for example when it reaches `replied` or `pr_open`. While a task is waiting
+    for a running agent to finish, its conversation stays quiet; its `queued` field says so.
 
     Args:
         workspace_id (str):

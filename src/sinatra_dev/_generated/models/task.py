@@ -30,8 +30,8 @@ class Task:
             has no title, or a chat task not yet named.
         repo (None | str): `owner/name` of the task's repository. `null` until a repository is chosen.
         pull_request (None | PullRequest): The task's pull request. `null` until one opens.
-        queued (bool): `true` while a turn waits because the workspace is already running as many tasks at a time as its
-            plan allows. The dashboard shows this as Queued.
+        queued (bool): `true` while the task's agent waits because the workspace is already running as many agents at a
+            time as its plan allows. The dashboard shows this as Waiting.
         created_at (datetime.datetime): When the task was created.
         last_activity_at (datetime.datetime | None): When the task last did something. `null` if it hasn't yet.
         url (None | str): The task's page in the Sinatra dashboard, where anyone in the workspace can follow it. On a

@@ -137,8 +137,8 @@ def sync_detailed(
     the new `taskId` and `messageId`. Retry with the same key, or send a message on that task, which
     sends your prompt first.
 
-    A task started this way counts against the workspace's plan like any other. A running turn takes one
-    of the plan's tasks at a time; past that it's queued. See [How the queue
+    A task started this way counts against the workspace's plan like any other. Each agent takes one of
+    the plan's running places; past that it waits. See [How the queue
     works](https://docs.sinatra.dev/docs/managed/billing#how-the-queue-works). It also needs model
     access, like a task delegated from Linear or GitHub. See
     [Models](https://docs.sinatra.dev/docs/configuration/models).
@@ -199,8 +199,8 @@ def sync(
     the new `taskId` and `messageId`. Retry with the same key, or send a message on that task, which
     sends your prompt first.
 
-    A task started this way counts against the workspace's plan like any other. A running turn takes one
-    of the plan's tasks at a time; past that it's queued. See [How the queue
+    A task started this way counts against the workspace's plan like any other. Each agent takes one of
+    the plan's running places; past that it waits. See [How the queue
     works](https://docs.sinatra.dev/docs/managed/billing#how-the-queue-works). It also needs model
     access, like a task delegated from Linear or GitHub. See
     [Models](https://docs.sinatra.dev/docs/configuration/models).
@@ -256,8 +256,8 @@ async def asyncio_detailed(
     the new `taskId` and `messageId`. Retry with the same key, or send a message on that task, which
     sends your prompt first.
 
-    A task started this way counts against the workspace's plan like any other. A running turn takes one
-    of the plan's tasks at a time; past that it's queued. See [How the queue
+    A task started this way counts against the workspace's plan like any other. Each agent takes one of
+    the plan's running places; past that it waits. See [How the queue
     works](https://docs.sinatra.dev/docs/managed/billing#how-the-queue-works). It also needs model
     access, like a task delegated from Linear or GitHub. See
     [Models](https://docs.sinatra.dev/docs/configuration/models).
@@ -316,8 +316,8 @@ async def asyncio(
     the new `taskId` and `messageId`. Retry with the same key, or send a message on that task, which
     sends your prompt first.
 
-    A task started this way counts against the workspace's plan like any other. A running turn takes one
-    of the plan's tasks at a time; past that it's queued. See [How the queue
+    A task started this way counts against the workspace's plan like any other. Each agent takes one of
+    the plan's running places; past that it waits. See [How the queue
     works](https://docs.sinatra.dev/docs/managed/billing#how-the-queue-works). It also needs model
     access, like a task delegated from Linear or GitHub. See
     [Models](https://docs.sinatra.dev/docs/configuration/models).
