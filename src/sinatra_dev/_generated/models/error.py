@@ -17,13 +17,15 @@ class Error:
 
     Attributes:
         error (str): A machine-readable code, such as `invalid_prompt`. Branch on this, not on `reason`. New codes can
-            appear. Known codes: `assigned_to_other`, `bad_request`, `capacity_full`, `github_identity_required`,
-            `github_not_connected`, `github_rate_limited`, `idempotency_conflict`, `internal_error`, `invalid_body`,
+            appear. Known codes: `actor_not_authorized`, `already_member`, `assigned_to_other`, `bad_request`,
+            `capacity_full`, `consumed`, `declined`, `expired`, `github_identity_required`, `github_not_connected`,
+            `github_rate_limited`, `idempotency_conflict`, `illegal_role`, `internal_error`, `invalid_body`,
             `invalid_cursor`, `invalid_idempotency_key`, `invalid_limit`, `invalid_model`, `invalid_prompt`, `invalid_repo`,
-            `invalid_status`, `invalid_title`, `invalid_token`, `issue_closed`, `issue_not_found`,
-            `linear_app_user_missing`, `linear_identity_conflict`, `linear_identity_unlinked`, `linear_not_connected`,
-            `linear_reconnect_required`, `not_an_api_task`, `not_an_issue`, `not_found`, `not_running`, `payment_required`,
-            `repo_disabled`, `unavailable`.
+            `invalid_status`, `invalid_title`, `invalid_token`, `invite_delivery_failed`, `invite_limit`,
+            `invite_not_found`, `invite_revoked`, `issue_closed`, `issue_not_found`, `linear_app_user_missing`,
+            `linear_identity_conflict`, `linear_identity_unlinked`, `linear_not_connected`, `linear_reconnect_required`,
+            `membership_not_found`, `not_an_api_task`, `not_an_issue`, `not_found`, `not_running`, `payment_required`,
+            `repo_disabled`, `request_not_found`, `request_not_pending`, `revoked`, `unavailable`.
         reason (str | Unset): A sentence saying what went wrong and, where it helps, what to do. Written to show to a
             person.
         request_id (str | Unset): The request's id. Present on some errors, not all; the `x-request-id` response header
